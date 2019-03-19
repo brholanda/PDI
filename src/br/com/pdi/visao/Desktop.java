@@ -4,9 +4,18 @@ import br.com.pdi.filtro.FiltroLaplaciano;
 import br.com.pdi.filtro.Filtro;
 import br.com.pdi.filtro.FiltroMedia;
 import br.com.pdi.filtro.FiltroMediana;
+import br.com.pdi.monocromatizador.Monocromatizador;
+import br.com.pdi.monocromatizador.MonocromatizadorBT709;
+import br.com.pdi.monocromatizador.MonocromatizadorBrilho;
+import br.com.pdi.monocromatizador.MonocromatizadorComponenteB;
+import br.com.pdi.monocromatizador.MonocromatizadorComponenteG;
+import br.com.pdi.monocromatizador.MonocromatizadorComponenteR;
+import br.com.pdi.monocromatizador.MonocromatizadorMedia;
+import br.com.pdi.monocromatizador.MonocromatizadorRmy;
+import br.com.pdi.monocromatizador.MonocromatizadorY;
 import br.com.pdi.operacao.Operacao;
-import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -98,6 +107,24 @@ public class Desktop extends javax.swing.JFrame {
         MostrarBordas = new javax.swing.JMenuItem();
         blur = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        ConversaoDeCores = new javax.swing.JMenu();
+        MonocromatizarPorComponente = new javax.swing.JMenu();
+        ComponenteR = new javax.swing.JMenuItem();
+        ComponenteG = new javax.swing.JMenuItem();
+        ComponenteB = new javax.swing.JMenuItem();
+        MonocromatizarPorBrilho = new javax.swing.JMenuItem();
+        MonocromatizarPorMedia = new javax.swing.JMenuItem();
+        MonocromatizarPorLuminosidade = new javax.swing.JMenu();
+        BT709Grayscale = new javax.swing.JMenuItem();
+        RMYGrayscale = new javax.swing.JMenuItem();
+        YGrayscale = new javax.swing.JMenuItem();
+        Histograma = new javax.swing.JMenu();
+        Exibir = new javax.swing.JMenuItem();
+        equalizar = new javax.swing.JMenuItem();
+        limiarizacao = new javax.swing.JMenu();
+        limiarizacaoManual = new javax.swing.JMenuItem();
+        LimiarizacaoGlobalAutomatica = new javax.swing.JMenuItem();
+        LimiarizacaoLocalAutomatica = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Projeto da Disciplina \"Tópicos Especiais em Informática\" - Prof. Leandro Luque - Fatec Mogi das Cruzes");
@@ -248,6 +275,110 @@ public class Desktop extends javax.swing.JFrame {
 
         menBarMenuPrincipal.add(jMenu1);
         menBarMenuPrincipal.add(jMenu2);
+
+        ConversaoDeCores.setText("Conversão de Cores");
+        ConversaoDeCores.setToolTipText("");
+
+        MonocromatizarPorComponente.setText("Monocromatizar por Componente");
+
+        ComponenteR.setText("R");
+        ComponenteR.setToolTipText("");
+        ComponenteR.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ComponenteRActionPerformed(evt);
+            }
+        });
+        MonocromatizarPorComponente.add(ComponenteR);
+
+        ComponenteG.setText("G");
+        ComponenteG.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ComponenteGActionPerformed(evt);
+            }
+        });
+        MonocromatizarPorComponente.add(ComponenteG);
+
+        ComponenteB.setText("B");
+        ComponenteB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ComponenteBActionPerformed(evt);
+            }
+        });
+        MonocromatizarPorComponente.add(ComponenteB);
+
+        ConversaoDeCores.add(MonocromatizarPorComponente);
+
+        MonocromatizarPorBrilho.setText("Monocromatizar por Brilho");
+        MonocromatizarPorBrilho.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MonocromatizarPorBrilhoActionPerformed(evt);
+            }
+        });
+        ConversaoDeCores.add(MonocromatizarPorBrilho);
+
+        MonocromatizarPorMedia.setText("Monocromatizar por Média");
+        MonocromatizarPorMedia.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                MonocromatizarPorMediaActionPerformed(evt);
+            }
+        });
+        ConversaoDeCores.add(MonocromatizarPorMedia);
+
+        MonocromatizarPorLuminosidade.setText("Monocromatizar por Luminosidade");
+
+        BT709Grayscale.setText("BT709 Grayscale");
+        BT709Grayscale.setToolTipText("");
+        BT709Grayscale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BT709GrayscaleActionPerformed(evt);
+            }
+        });
+        MonocromatizarPorLuminosidade.add(BT709Grayscale);
+
+        RMYGrayscale.setText("RMY Grayscale");
+        RMYGrayscale.setToolTipText("");
+        RMYGrayscale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RMYGrayscaleActionPerformed(evt);
+            }
+        });
+        MonocromatizarPorLuminosidade.add(RMYGrayscale);
+
+        YGrayscale.setText("Y-Grayscale");
+        YGrayscale.setToolTipText("");
+        YGrayscale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                YGrayscaleActionPerformed(evt);
+            }
+        });
+        MonocromatizarPorLuminosidade.add(YGrayscale);
+
+        ConversaoDeCores.add(MonocromatizarPorLuminosidade);
+
+        menBarMenuPrincipal.add(ConversaoDeCores);
+
+        Histograma.setText("Histograma");
+
+        Exibir.setText("Exibir");
+        Histograma.add(Exibir);
+
+        equalizar.setText("Equalizar");
+        Histograma.add(equalizar);
+
+        menBarMenuPrincipal.add(Histograma);
+
+        limiarizacao.setText("Limiarização");
+
+        limiarizacaoManual.setText("Limiarização Manual");
+        limiarizacao.add(limiarizacaoManual);
+
+        LimiarizacaoGlobalAutomatica.setText("Limiarização Global Automática");
+        limiarizacao.add(LimiarizacaoGlobalAutomatica);
+
+        LimiarizacaoLocalAutomatica.setText("Limiarização Local Automática");
+        limiarizacao.add(LimiarizacaoLocalAutomatica);
+
+        menBarMenuPrincipal.add(limiarizacao);
 
         setJMenuBar(menBarMenuPrincipal);
 
@@ -467,7 +598,7 @@ public class Desktop extends javax.swing.JFrame {
             // Por isso, o try catch seguinte avalia este erro.
             try {
                 selecionadorArquivo.getSelectedFile().getCanonicalFile();
-            } catch (Exception erro) {
+            } catch (IOException erro) {
                 JOptionPane.showMessageDialog(this, "Por favor, selecione outra pasta. A pasta selecionada retornou uma referência inválida pelo Sistema Operacional.\nEste é um problema comum no Windows 7 quando você seleciona uma Biblioteca (Imagens, Músicas etc.)");
                 return;
             }
@@ -679,7 +810,7 @@ public class Desktop extends javax.swing.JFrame {
                         && !jaVisitados[y][x]) {
 
                     //     List<int[]> pixelsDoConjunto = new ArrayList<int[]>();
-                    Stack<int[]> aVisitar = new Stack<int[]>();
+                    Stack<int[]> aVisitar = new Stack<>();
 
                     int corRAleatoria = (int) (255 * Math.random());
                     int corGAleatoria = (int) (255 * Math.random());
@@ -810,11 +941,99 @@ public class Desktop extends javax.swing.JFrame {
         adicionarImagem(imagemFiltrada);
     }//GEN-LAST:event_blurActionPerformed
 
+    private void ComponenteRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComponenteRActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorComponenteR());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_ComponenteRActionPerformed
+
+    private void ComponenteGActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComponenteGActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorComponenteG());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_ComponenteGActionPerformed
+
+    private void ComponenteBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ComponenteBActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorComponenteB());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_ComponenteBActionPerformed
+
+    private void MonocromatizarPorBrilhoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MonocromatizarPorBrilhoActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorBrilho());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_MonocromatizarPorBrilhoActionPerformed
+
+    private void MonocromatizarPorMediaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MonocromatizarPorMediaActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorMedia());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_MonocromatizarPorMediaActionPerformed
+
+    private void BT709GrayscaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BT709GrayscaleActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorBT709());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_BT709GrayscaleActionPerformed
+
+    private void RMYGrayscaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RMYGrayscaleActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorRmy());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_RMYGrayscaleActionPerformed
+
+    private void YGrayscaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_YGrayscaleActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorY());
+        adicionarImagem(imagemMonocromatica);
+    }//GEN-LAST:event_YGrayscaleActionPerformed
+
     //*******************************************
     /**
      * Adiciona uma janela de imagem ao painel de desktop.
      *
-     * @param A imagem que deve ser exibida dentro da janela.
+     * @param imagem imagem que deve ser exibida dentro da janela.
      */
     public void adicionarImagem(ImagemGUI imagem) {
         // Cria uma janela interna para a imagem.
@@ -824,7 +1043,8 @@ public class Desktop extends javax.swing.JFrame {
         janelaImagem.setVisible(true);
         try {
             janelaImagem.setSelected(true);
-        } catch (Exception erro) {
+        } catch (PropertyVetoException erro) {
+            erro.printStackTrace();
         }
         desPanDesktop.repaint();
     }
@@ -861,7 +1081,7 @@ public class Desktop extends javax.swing.JFrame {
         }
 
         // Recupera as imagens abertas.
-        List<ImagemGUI> imagens = new ArrayList<ImagemGUI>();
+        List<ImagemGUI> imagens = new ArrayList<>();
         for (JInternalFrame frame : desPanDesktop.getAllFrames()) {
             JanelaImagem janela = (JanelaImagem) frame;
             imagens.add(janela.getImagem());
@@ -886,14 +1106,32 @@ public class Desktop extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem BT709Grayscale;
+    private javax.swing.JMenuItem ComponenteB;
+    private javax.swing.JMenuItem ComponenteG;
+    private javax.swing.JMenuItem ComponenteR;
+    private javax.swing.JMenu ConversaoDeCores;
+    private javax.swing.JMenuItem Exibir;
+    private javax.swing.JMenu Histograma;
+    private javax.swing.JMenuItem LimiarizacaoGlobalAutomatica;
+    private javax.swing.JMenuItem LimiarizacaoLocalAutomatica;
+    private javax.swing.JMenuItem MonocromatizarPorBrilho;
+    private javax.swing.JMenu MonocromatizarPorComponente;
+    private javax.swing.JMenu MonocromatizarPorLuminosidade;
+    private javax.swing.JMenuItem MonocromatizarPorMedia;
     private javax.swing.JMenuItem MostrarBordas;
+    private javax.swing.JMenuItem RMYGrayscale;
     private javax.swing.JMenuItem RemoverRuido;
+    private javax.swing.JMenuItem YGrayscale;
     private javax.swing.JMenuItem blur;
     private javax.swing.JDesktopPane desPanDesktop;
+    private javax.swing.JMenuItem equalizar;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenu limiarizacao;
+    private javax.swing.JMenuItem limiarizacaoManual;
     private javax.swing.JMenu menArquivo;
     private javax.swing.JMenuBar menBarMenuPrincipal;
     private javax.swing.JMenu menExemplo;
@@ -1253,5 +1491,25 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         return truncada;
+    }
+
+    private ImagemGUI monocromatizar(ImagemGUI imagem, Monocromatizador monocromatizador) {
+        int largura = imagem.getLargura();
+        int altura = imagem.getAltura();
+        
+        int r, g, b;
+        
+        // Cria base para nova imagem a partir da imagem original
+        ImagemGUI monocromatica = new ImagemGUI("Imagem resultante", largura, altura);
+        
+        for (int x = 0; x < largura; x++) {
+            for (int y = 0; y < altura; y++) {
+                
+                r = g = b = monocromatizador.aplicar(imagem, y, x);
+                monocromatica.setRGB(x, y, r, g, b);
+            }
+        }
+        
+        return monocromatica;
     }
 }

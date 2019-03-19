@@ -173,6 +173,135 @@
         </Menu>
         <Menu class="javax.swing.JMenu" name="jMenu2">
         </Menu>
+        <Menu class="javax.swing.JMenu" name="ConversaoDeCores">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Convers&#xe3;o de Cores"/>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
+          </Properties>
+          <SubComponents>
+            <Menu class="javax.swing.JMenu" name="MonocromatizarPorComponente">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Monocromatizar por Componente"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="ComponenteR">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="R"/>
+                    <Property name="toolTipText" type="java.lang.String" value=""/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ComponenteRActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="ComponenteG">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="G"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ComponenteGActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="ComponenteB">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="B"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ComponenteBActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
+            <MenuItem class="javax.swing.JMenuItem" name="MonocromatizarPorBrilho">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Monocromatizar por Brilho"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="MonocromatizarPorBrilhoActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="MonocromatizarPorMedia">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Monocromatizar por M&#xe9;dia"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="MonocromatizarPorMediaActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <Menu class="javax.swing.JMenu" name="MonocromatizarPorLuminosidade">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Monocromatizar por Luminosidade"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="BT709Grayscale">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="BT709 Grayscale"/>
+                    <Property name="toolTipText" type="java.lang.String" value=""/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="BT709GrayscaleActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="RMYGrayscale">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="RMY Grayscale"/>
+                    <Property name="toolTipText" type="java.lang.String" value=""/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="RMYGrayscaleActionPerformed"/>
+                  </Events>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="YGrayscale">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Y-Grayscale"/>
+                    <Property name="toolTipText" type="java.lang.String" value=""/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="YGrayscaleActionPerformed"/>
+                  </Events>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="Histograma">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Histograma"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="Exibir">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Exibir"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="equalizar">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Equalizar"/>
+              </Properties>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="limiarizacao">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Limiariza&#xe7;&#xe3;o"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="limiarizacaoManual">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Limiariza&#xe7;&#xe3;o Manual"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="LimiarizacaoGlobalAutomatica">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Limiariza&#xe7;&#xe3;o Global Autom&#xe1;tica"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="LimiarizacaoLocalAutomatica">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Limiariza&#xe7;&#xe3;o Local Autom&#xe1;tica"/>
+              </Properties>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
       </SubComponents>
     </Menu>
   </NonVisualComponents>
