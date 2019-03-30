@@ -933,7 +933,7 @@ public class Desktop extends javax.swing.JFrame {
         
         int[][] kernel = new int[3][3];
         
-        int[][][] cores = aplicaKernel(kernel, imagem, new FiltroMediana());
+        int[][][] cores = aplicarKernel(kernel, imagem, new FiltroMediana());
         
         ImagemGUI imagemFiltrada = normalizar(cores);
         
@@ -949,7 +949,7 @@ public class Desktop extends javax.swing.JFrame {
         
         int[][] kernel = {{-1,-1,-1},{-1,8,-1},{-1,-1,-1}};
         
-        int[][][] cores = aplicaKernel(kernel, imagem, new FiltroLaplaciano());
+        int[][][] cores = aplicarKernel(kernel, imagem, new FiltroLaplaciano());
         
         ImagemGUI imagemFiltrada = normalizar(cores);
         
@@ -965,7 +965,7 @@ public class Desktop extends javax.swing.JFrame {
         
         int[][] kernel = new int[5][5];
         
-        int[][][] cores = aplicaKernelBorda(kernel, imagem, new FiltroMedia());
+        int[][][] cores = aplicarKernelBorda(kernel, imagem, new FiltroMedia());
         
         ImagemGUI imagemFiltrada = truncar(cores);
         adicionarImagem(imagemFiltrada);
@@ -1075,7 +1075,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorY());
-        ImagemGUI histograma = geraHistograma(imagemMonocromatica);
+        ImagemGUI histograma = gerarHistograma(imagemMonocromatica);
         adicionarImagem(histograma);
     }//GEN-LAST:event_ExibirActionPerformed
 
@@ -1486,7 +1486,7 @@ public class Desktop extends javax.swing.JFrame {
         return new int[]{maisFrequenteR, maisFrequenteG, maisFrequenteB};
     }
 
-    private int[][][] aplicaKernel(int[][] kernel, ImagemGUI imagem, Filtro filtro) {
+    private int[][][] aplicarKernel(int[][] kernel, ImagemGUI imagem, Filtro filtro) {
         
         int larguraImagem = imagem.getLargura();
         int alturaImagem = imagem.getAltura();
@@ -1525,7 +1525,7 @@ public class Desktop extends javax.swing.JFrame {
         return matrizesCores;
     }
 
-    private int[][][] aplicaKernelBorda(int[][] kernel, ImagemGUI imagem, Filtro filtro) {
+    private int[][][] aplicarKernelBorda(int[][] kernel, ImagemGUI imagem, Filtro filtro) {
         
         int larguraImagem = imagem.getLargura();
         int alturaImagem = imagem.getAltura();
@@ -1672,14 +1672,14 @@ public class Desktop extends javax.swing.JFrame {
         return monocromatica;
     }
 
-    private ImagemGUI geraHistograma(ImagemGUI imagem) {
+    private ImagemGUI gerarHistograma(ImagemGUI imagem) {
         ImagemGUI histograma = new ImagemGUI("Histograma", 510, 200);
         int larguraHistograma = histograma.getLargura();
         int alturaHistograma = histograma.getAltura();
         
-        int[][] vetoresHistograma = HistogramaServico.geraVetores(imagem);
+        int[][] vetoresHistograma = HistogramaServico.gerarVetores(imagem);
 
-        int maiorValor = HistogramaServico.getMaiorValor(vetoresHistograma[0]);
+        int maiorValor = HistogramaServico.encontrarMaiorValor(vetoresHistograma[0]);
         float[] vetorProblabilidade = new float[510];
         for (int i = 0; i < vetorProblabilidade.length; i += 2) {
             vetorProblabilidade[i] = (float) vetoresHistograma[0][i/2] / maiorValor * 200;
@@ -1707,17 +1707,16 @@ public class Desktop extends javax.swing.JFrame {
         // Cria base para nova imagem a partir da imagem original
         ImagemGUI equalizada = new ImagemGUI("Imagem Equalizada", largura, altura);
         
-        int[][] vetoresHistograma = HistogramaServico.geraVetores(imagem);
-        float[][] vetoresProbabilidade = HistogramaServico.geraVetoresProbabilidade(imagem, vetoresHistograma);
+        float[][] vetoresRelativos = HistogramaServico.gerarVetoresRelativos(imagem);
         
-        float[][] vetoresProbabilidadeAcumulada = vetoresProbabilidade;
+        float[][] vetoresProbabilidadeAcumulada = vetoresRelativos;
         for(int i = 1; i < vetoresProbabilidadeAcumulada[0].length; i++){
             vetoresProbabilidadeAcumulada[0][i] = vetoresProbabilidadeAcumulada[0][i-1]
-                    + vetoresProbabilidade[0][i];
+                    + vetoresRelativos[0][i];
             vetoresProbabilidadeAcumulada[1][i] = vetoresProbabilidadeAcumulada[1][i-1]
-                    + vetoresProbabilidade[1][i];
+                    + vetoresRelativos[1][i];
             vetoresProbabilidadeAcumulada[2][i] = vetoresProbabilidadeAcumulada[2][i-1]
-                    + vetoresProbabilidade[2][i];
+                    + vetoresRelativos[2][i];
         }
         
         for (int y = 0; y < altura; y++) {
@@ -1735,11 +1734,11 @@ public class Desktop extends javax.swing.JFrame {
     }
 
     private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante, int x1, int x2, int y1, int y2) {
-        int[] vetorHistograma = HistogramaServico.geraVetor(imagem, x1, x2, y1, y2);
-        int tamanhoHistograma = vetorHistograma.length;
+        float[] vetorRelativoRegiao = HistogramaServico.gerarVetorRelativo(imagem, x1, x2, y1, y2);
+        int tamanhoHistograma = vetorRelativoRegiao.length;
         int limiar = tamanhoHistograma / 2;
-        int pesoEsquerda = 0;
-        int pesoDireita = 0;
+        float pesoEsquerda = 0;
+        float pesoDireita = 0;
         int verificacoes = 0;
         int minimo = 0;
         int maximo = tamanhoHistograma;
@@ -1749,9 +1748,9 @@ public class Desktop extends javax.swing.JFrame {
             pesoDireita = 0;
             for (int i = minimo; i < maximo; i++){
                 if (i <= limiar){
-                    pesoEsquerda += (vetorHistograma[i] * i);
+                    pesoEsquerda += vetorRelativoRegiao[i];
                 } else {
-                    pesoDireita += (vetorHistograma[i] * i);
+                    pesoDireita += vetorRelativoRegiao[i];
                 }
             }
             if (pesoEsquerda > pesoDireita){
