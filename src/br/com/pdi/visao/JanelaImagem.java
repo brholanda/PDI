@@ -55,7 +55,7 @@ public class JanelaImagem extends JInternalFrame {
         imagem.setJanela(this);
         add(rotuloImagem, BorderLayout.CENTER);
         ImageIcon iconeImagem1 = new ImageIcon(imagem.getImagem());
-        setBounds(0, 0, imagem.getLargura(), imagem.getAltura());
+        setBounds(0, 0, imagem.getLargura()+12, imagem.getAltura()+37);
         rotuloImagem.setIcon(iconeImagem1);
         rotuloImagem.validate();
     }

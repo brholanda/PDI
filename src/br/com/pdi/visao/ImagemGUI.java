@@ -13,6 +13,24 @@ import javax.swing.JLabel;
  * @version 1.0
  */
 public class ImagemGUI extends Imagem {
+
+    static ImagemGUI montarImagem(int[][][] canais) {
+        int largura = canais[0].length;
+        int altura = canais[0][0].length;
+        int r, g, b;
+        
+        ImagemGUI imagem = new ImagemGUI(largura, altura);
+        
+        for (int x = 0; x < largura; x++) {
+            for (int y = 0; y < altura; y++) {
+                r = canais[Imagem.RED][x][y];
+                g = canais[Imagem.GREEN][x][y];
+                b = canais[Imagem.BLUE][x][y];
+                imagem.setRGB(x, y, r, g, b);
+            }
+        }
+        return imagem;
+    }
    
     /**
      * JLabel onde a imagem foi desenhada.

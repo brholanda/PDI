@@ -1,9 +1,11 @@
 package br.com.pdi.visao;
 
+import br.com.pdi.dominio.Imagem;
 import br.com.pdi.filtro.FiltroLaplaciano;
 import br.com.pdi.filtro.Filtro;
 import br.com.pdi.filtro.FiltroMedia;
 import br.com.pdi.filtro.FiltroMediana;
+import br.com.pdi.servico.HistogramaServico;
 import br.com.pdi.monocromatizador.Monocromatizador;
 import br.com.pdi.monocromatizador.MonocromatizadorBT709;
 import br.com.pdi.monocromatizador.MonocromatizadorBrilho;
@@ -18,10 +20,13 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -360,9 +365,19 @@ public class Desktop extends javax.swing.JFrame {
         Histograma.setText("Histograma");
 
         Exibir.setText("Exibir");
+        Exibir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ExibirActionPerformed(evt);
+            }
+        });
         Histograma.add(Exibir);
 
         equalizar.setText("Equalizar");
+        equalizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                equalizarActionPerformed(evt);
+            }
+        });
         Histograma.add(equalizar);
 
         menBarMenuPrincipal.add(Histograma);
@@ -370,12 +385,27 @@ public class Desktop extends javax.swing.JFrame {
         limiarizacao.setText("Limiarização");
 
         limiarizacaoManual.setText("Limiarização Manual");
+        limiarizacaoManual.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                limiarizacaoManualActionPerformed(evt);
+            }
+        });
         limiarizacao.add(limiarizacaoManual);
 
         LimiarizacaoGlobalAutomatica.setText("Limiarização Global Automática");
+        LimiarizacaoGlobalAutomatica.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LimiarizacaoGlobalAutomaticaActionPerformed(evt);
+            }
+        });
         limiarizacao.add(LimiarizacaoGlobalAutomatica);
 
         LimiarizacaoLocalAutomatica.setText("Limiarização Local Automática");
+        LimiarizacaoLocalAutomatica.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LimiarizacaoLocalAutomaticaActionPerformed(evt);
+            }
+        });
         limiarizacao.add(LimiarizacaoLocalAutomatica);
 
         menBarMenuPrincipal.add(limiarizacao);
@@ -949,6 +979,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorComponenteR());
+        imagemMonocromatica.setNome("Componente R");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_ComponenteRActionPerformed
 
@@ -960,6 +991,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorComponenteG());
+        imagemMonocromatica.setNome("Componente G");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_ComponenteGActionPerformed
 
@@ -971,6 +1003,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorComponenteB());
+        imagemMonocromatica.setNome("Componente B");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_ComponenteBActionPerformed
 
@@ -982,6 +1015,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorBrilho());
+        imagemMonocromatica.setNome("Brilho");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_MonocromatizarPorBrilhoActionPerformed
 
@@ -993,6 +1027,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorMedia());
+        imagemMonocromatica.setNome("Média");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_MonocromatizarPorMediaActionPerformed
 
@@ -1004,6 +1039,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorBT709());
+        imagemMonocromatica.setNome("BT709 Grayscale");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_BT709GrayscaleActionPerformed
 
@@ -1015,6 +1051,7 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorRmy());
+        imagemMonocromatica.setNome("RMY Grayscale");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_RMYGrayscaleActionPerformed
 
@@ -1026,8 +1063,130 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorY());
+        imagemMonocromatica.setNome("Y-Grayscale");
         adicionarImagem(imagemMonocromatica);
     }//GEN-LAST:event_YGrayscaleActionPerformed
+
+    private void ExibirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExibirActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+        
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorY());
+        ImagemGUI histograma = geraHistograma(imagemMonocromatica);
+        adicionarImagem(histograma);
+    }//GEN-LAST:event_ExibirActionPerformed
+
+    private void equalizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_equalizarActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+        
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemEqualizada = equalizar(imagem);
+        adicionarImagem(imagemEqualizada);
+    }//GEN-LAST:event_equalizarActionPerformed
+
+    private void limiarizacaoManualActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limiarizacaoManualActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+        
+        if (null == imagem) {
+            return;
+        }
+        int limiar = - 1;
+        
+        do {
+            String valor = JOptionPane
+                    .showInputDialog(null, "Digite o limiar", "Limiarização", JOptionPane.QUESTION_MESSAGE);
+            try {
+                limiar = Integer.valueOf(valor);
+            } catch (NumberFormatException e) {
+                JOptionPane
+                    .showMessageDialog(null, "Valor inválido", "Limiarização", JOptionPane.WARNING_MESSAGE);
+            }
+        } while (limiar < 0 || limiar > 255);
+        
+        int x1, x2, y1, y2;
+        x1 = y1 = 0;
+        x2 = imagem.getLargura();
+        y2 = imagem.getAltura();
+        
+        ImagemGUI imagemLimiarizada = new ImagemGUI(x2, y2);
+        
+        limiarizar(imagem, imagemLimiarizada, x1, x2, y1, y2, limiar);
+        imagemLimiarizada.setNome("Limiarização Manual");
+        adicionarImagem(imagemLimiarizada);
+    }//GEN-LAST:event_limiarizacaoManualActionPerformed
+
+    private void LimiarizacaoGlobalAutomaticaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LimiarizacaoGlobalAutomaticaActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+        if (null == imagem) {
+            return;
+        }   int x1, x2, y1, y2;
+        x1 = y1 = 0;
+        x2 = imagem.getLargura();
+        y2 = imagem.getAltura();
+        ImagemGUI imagemLimiarizada = new ImagemGUI(x2, y2);
+        
+        limiarizar(imagem, imagemLimiarizada, x1, x2, y1, y2);
+        imagemLimiarizada.setNome("Limiarização Global");
+        adicionarImagem(imagemLimiarizada);
+    }//GEN-LAST:event_LimiarizacaoGlobalAutomaticaActionPerformed
+
+    private void LimiarizacaoLocalAutomaticaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LimiarizacaoLocalAutomaticaActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+        
+        if (null == imagem) {
+            return;
+        }
+        
+        int altura = imagem.getAltura();
+        int largura = imagem.getLargura();
+        
+        int linhas = 0, colunas = 0;
+        
+        do {
+            String valor = JOptionPane
+                    .showInputDialog(null, "Digite a quantidade de frames para a largura da imagem", "Limiarização", JOptionPane.QUESTION_MESSAGE);
+            try {
+                colunas = Integer.valueOf(valor);
+            } catch (NumberFormatException e) {
+                JOptionPane
+                    .showMessageDialog(null, "Valor inválido", "Limiarização", JOptionPane.WARNING_MESSAGE);
+            }
+        } while (colunas < 1 || colunas >= largura);
+        do {
+            String valor = JOptionPane
+                    .showInputDialog(null, "Digite a quantidade de frames para a altura da imagem", "Limiarização", JOptionPane.QUESTION_MESSAGE);
+            try {
+                linhas = Integer.valueOf(valor);
+            } catch (NumberFormatException e) {
+                JOptionPane
+                    .showMessageDialog(null, "Valor inválido", "Limiarização", JOptionPane.WARNING_MESSAGE);
+            }
+        } while (linhas < 1 || linhas >= altura);
+        
+        int larguraFrameLocal = largura / colunas;
+        int alturaFrameLocal = altura / linhas;
+        
+        int x1, x2, y1, y2;
+        
+        ImagemGUI imagemLimiarizada = new ImagemGUI(largura, altura);
+        
+        for (int x = 0; x < colunas; x++) {
+            for (int y = 0; y < linhas; y++) {
+                x1 = x * larguraFrameLocal;
+                y1 = y * alturaFrameLocal;
+                x2 = x1 + larguraFrameLocal;
+                y2 = y1 + alturaFrameLocal;
+                limiarizar(imagem, imagemLimiarizada, x1, x2, y1, y2);
+            }
+        }
+        adicionarImagem(imagemLimiarizada);
+    }//GEN-LAST:event_LimiarizacaoLocalAutomaticaActionPerformed
 
     //*******************************************
     /**
@@ -1511,5 +1670,117 @@ public class Desktop extends javax.swing.JFrame {
         }
         
         return monocromatica;
+    }
+
+    private ImagemGUI geraHistograma(ImagemGUI imagem) {
+        ImagemGUI histograma = new ImagemGUI("Histograma", 510, 200);
+        int larguraHistograma = histograma.getLargura();
+        int alturaHistograma = histograma.getAltura();
+        
+        int[][] vetoresHistograma = HistogramaServico.geraVetores(imagem);
+
+        int maiorValor = HistogramaServico.getMaiorValor(vetoresHistograma[0]);
+        float[] vetorProblabilidade = new float[510];
+        for (int i = 0; i < vetorProblabilidade.length; i += 2) {
+            vetorProblabilidade[i] = (float) vetoresHistograma[0][i/2] / maiorValor * 200;
+            vetorProblabilidade[i+1] = (float) vetorProblabilidade[i];
+        }
+        
+        for (int x = 0; x < larguraHistograma; x++) {
+            for (int y = 0; y < alturaHistograma; y++) {
+                if ((alturaHistograma - y) < vetorProblabilidade[x]){
+                    histograma.setGrayScale(x, y, 0);
+                } else {
+                    histograma.setGrayScale(x, y, 200);
+                }
+            }
+        }
+        
+        return histograma;
+    }
+
+    private ImagemGUI equalizar(ImagemGUI imagem) {
+        int largura = imagem.getLargura();
+        int altura = imagem.getAltura();
+        int r, g, b;
+        
+        // Cria base para nova imagem a partir da imagem original
+        ImagemGUI equalizada = new ImagemGUI("Imagem Equalizada", largura, altura);
+        
+        int[][] vetoresHistograma = HistogramaServico.geraVetores(imagem);
+        float[][] vetoresProbabilidade = HistogramaServico.geraVetoresProbabilidade(imagem, vetoresHistograma);
+        
+        float[][] vetoresProbabilidadeAcumulada = vetoresProbabilidade;
+        for(int i = 1; i < vetoresProbabilidadeAcumulada[0].length; i++){
+            vetoresProbabilidadeAcumulada[0][i] = vetoresProbabilidadeAcumulada[0][i-1]
+                    + vetoresProbabilidade[0][i];
+            vetoresProbabilidadeAcumulada[1][i] = vetoresProbabilidadeAcumulada[1][i-1]
+                    + vetoresProbabilidade[1][i];
+            vetoresProbabilidadeAcumulada[2][i] = vetoresProbabilidadeAcumulada[2][i-1]
+                    + vetoresProbabilidade[2][i];
+        }
+        
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                
+                r = (int) (255 * vetoresProbabilidadeAcumulada[0][imagem.getR(x, y)]);
+                g = (int) (255 * vetoresProbabilidadeAcumulada[1][imagem.getG(x, y)]);
+                b = (int) (255 * vetoresProbabilidadeAcumulada[2][imagem.getB(x, y)]);
+
+                equalizada.setRGB(x, y, r, g, b);
+            }
+        }
+        
+        return equalizada;
+    }
+
+    private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante, int x1, int x2, int y1, int y2) {
+        int[] vetorHistograma = HistogramaServico.geraVetor(imagem, x1, x2, y1, y2);
+        int tamanhoHistograma = vetorHistograma.length;
+        int limiar = tamanhoHistograma / 2;
+        int pesoEsquerda = 0;
+        int pesoDireita = 0;
+        int verificacoes = 0;
+        int minimo = 0;
+        int maximo = tamanhoHistograma;
+        
+        do {
+            pesoEsquerda = 0;
+            pesoDireita = 0;
+            for (int i = minimo; i < maximo; i++){
+                if (i <= limiar){
+                    pesoEsquerda += (vetorHistograma[i] * i);
+                } else {
+                    pesoDireita += (vetorHistograma[i] * i);
+                }
+            }
+            if (pesoEsquerda > pesoDireita){
+                maximo = limiar;
+                limiar = minimo + ((limiar - minimo) / 2);
+            } else {
+                minimo = limiar;
+                limiar = limiar + ((maximo - limiar) / 2);
+            }
+            verificacoes++;
+        }while (verificacoes < 10);
+        
+        System.out.println("limiar: " + limiar);
+        
+        limiarizar(imagem, imagemResultante, x1, x2, y1, y2, limiar);
+    }
+
+    private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante, int x1, int x2, int y1, int y2, int limiar) {
+        int r, g, b;
+        
+        for (int x = x1; x < x2; x++) {
+            for (int y = y1; y < y2; y++) {
+                if (imagem.getR(x, y) < limiar){
+                    r = g = b = 0;
+                } else {
+                    r = g = b = 255;
+                }
+                imagemResultante.setRGB(x, y, r, g, b);
+            }
+        }
     }
 }

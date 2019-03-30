@@ -32,6 +32,10 @@ import java.awt.image.WritableRaster;
  * @version 1.0
  */
 public class Imagem {
+    
+    public static int RED = 0;
+    public static int GREEN = 1;
+    public static int BLUE = 2;
 
     /**
      * Imagem.
@@ -92,5 +96,21 @@ public class Imagem {
         }
         return matrizes;
     }
+    public int[][] getMatrizPorCanal(int canal) {
+        int[][] matriz = new int[imagemBuffer.getWidth()][imagemBuffer.getHeight()];
+        for ( int x = 0; x < imagemBuffer.getWidth(); x++ ){
+            for ( int y = 0; y < imagemBuffer.getHeight(); y++ ){
+                if (0 == canal) {
+                    matriz[x][y] = (new Color(Imagem.this.imagemBuffer.getRGB(x, y)).getRed());
+                } else if (1 == canal) {
+                    matriz[x][y] = (new Color(Imagem.this.imagemBuffer.getRGB(x, y)).getGreen());
+                } else if (2 == canal) {
+                    matriz[x][y] = (new Color(Imagem.this.imagemBuffer.getRGB(x, y)).getBlue());
+                }
+            }
+        }
+        return matriz;
+    }
+    public void setGrayScale(int x, int y, int tom) {Imagem.this.imagemBuffer.setRGB(x, y, new Color(tom,tom,tom).getRGB()); }
     
 }
