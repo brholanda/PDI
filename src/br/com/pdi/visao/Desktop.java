@@ -1,6 +1,5 @@
 package br.com.pdi.visao;
 
-import br.com.pdi.dominio.Imagem;
 import br.com.pdi.filtro.FiltroLaplaciano;
 import br.com.pdi.filtro.Filtro;
 import br.com.pdi.filtro.FiltroMedia;
@@ -16,17 +15,16 @@ import br.com.pdi.monocromatizador.MonocromatizadorMedia;
 import br.com.pdi.monocromatizador.MonocromatizadorRmy;
 import br.com.pdi.monocromatizador.MonocromatizadorY;
 import br.com.pdi.operacao.Operacao;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -130,6 +128,8 @@ public class Desktop extends javax.swing.JFrame {
         limiarizacaoManual = new javax.swing.JMenuItem();
         LimiarizacaoGlobalAutomatica = new javax.swing.JMenuItem();
         LimiarizacaoLocalAutomatica = new javax.swing.JMenuItem();
+        clusterizacao = new javax.swing.JMenu();
+        kMeans = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Projeto da Disciplina \"Tópicos Especiais em Informática\" - Prof. Leandro Luque - Fatec Mogi das Cruzes");
@@ -409,6 +409,20 @@ public class Desktop extends javax.swing.JFrame {
         limiarizacao.add(LimiarizacaoLocalAutomatica);
 
         menBarMenuPrincipal.add(limiarizacao);
+
+        clusterizacao.setText("Clusterização");
+        clusterizacao.setToolTipText("");
+
+        kMeans.setText("K-means");
+        kMeans.setToolTipText("");
+        kMeans.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                kMeansActionPerformed(evt);
+            }
+        });
+        clusterizacao.add(kMeans);
+
+        menBarMenuPrincipal.add(clusterizacao);
 
         setJMenuBar(menBarMenuPrincipal);
 
@@ -919,6 +933,7 @@ public class Desktop extends javax.swing.JFrame {
         ImagemGUI normalizada = new ImagemGUI("Imagem resultante da operacao com normalização", imagem);
 
         normalizada = normalizar(normalizada.getMatrizesRGB());
+        normalizada.setNome("Imagem Normalizada");
 
         // Pintar o resultado na imagem final.
         adicionarImagem(normalizada);
@@ -936,6 +951,7 @@ public class Desktop extends javax.swing.JFrame {
         int[][][] cores = aplicarKernel(kernel, imagem, new FiltroMediana());
         
         ImagemGUI imagemFiltrada = normalizar(cores);
+        imagemFiltrada.setNome("Imagem sem ruído (Mediana)");
         
         adicionarImagem(imagemFiltrada);
     }//GEN-LAST:event_RemoverRuidoActionPerformed
@@ -952,6 +968,7 @@ public class Desktop extends javax.swing.JFrame {
         int[][][] cores = aplicarKernel(kernel, imagem, new FiltroLaplaciano());
         
         ImagemGUI imagemFiltrada = normalizar(cores);
+        imagemFiltrada.setNome("Bordas (Laplaciano)");
         
         adicionarImagem(imagemFiltrada);
     }//GEN-LAST:event_MostrarBordasActionPerformed
@@ -968,6 +985,7 @@ public class Desktop extends javax.swing.JFrame {
         int[][][] cores = aplicarKernelBorda(kernel, imagem, new FiltroMedia());
         
         ImagemGUI imagemFiltrada = truncar(cores);
+        imagemFiltrada.setNome("Blur (Média)");
         adicionarImagem(imagemFiltrada);
     }//GEN-LAST:event_blurActionPerformed
 
@@ -1101,6 +1119,9 @@ public class Desktop extends javax.swing.JFrame {
         do {
             String valor = JOptionPane
                     .showInputDialog(null, "Digite o limiar", "Limiarização", JOptionPane.QUESTION_MESSAGE);
+            if (null == valor){
+                return;
+            }
             try {
                 limiar = Integer.valueOf(valor);
             } catch (NumberFormatException e) {
@@ -1185,8 +1206,23 @@ public class Desktop extends javax.swing.JFrame {
                 limiarizar(imagem, imagemLimiarizada, x1, x2, y1, y2);
             }
         }
+        imagemLimiarizada.setNome("Limiarização Local");
         adicionarImagem(imagemLimiarizada);
     }//GEN-LAST:event_LimiarizacaoLocalAutomaticaActionPerformed
+
+    private void kMeansActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kMeansActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+        
+        if (null == imagem) {
+            return;
+        }
+        
+        int quantidadeClusters = Integer.valueOf(JOptionPane.showInputDialog(this, "Digite a quantidade de Clusters para o agrupamento", 
+                "K-means", JOptionPane.INFORMATION_MESSAGE));
+        
+        ImagemGUI imagemClusterizada = aplicarKMeans(imagem, quantidadeClusters);
+        adicionarImagem(imagemClusterizada);
+    }//GEN-LAST:event_kMeansActionPerformed
 
     //*******************************************
     /**
@@ -1283,12 +1319,14 @@ public class Desktop extends javax.swing.JFrame {
     private javax.swing.JMenuItem RemoverRuido;
     private javax.swing.JMenuItem YGrayscale;
     private javax.swing.JMenuItem blur;
+    private javax.swing.JMenu clusterizacao;
     private javax.swing.JDesktopPane desPanDesktop;
     private javax.swing.JMenuItem equalizar;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem kMeans;
     private javax.swing.JMenu limiarizacao;
     private javax.swing.JMenuItem limiarizacaoManual;
     private javax.swing.JMenu menArquivo;
@@ -1378,53 +1416,6 @@ public class Desktop extends javax.swing.JFrame {
         }
 
         return resultadoOperacao;
-//        // Cria uma nova imagem baseando-se na atual.
-//        ImagemGUI truncada = new ImagemGUI("Imagem resultante da operacao com truncamento", largura, altura);
-//        ImagemGUI normalizada = new ImagemGUI("Imagem resultante da operacao com normalização", largura, altura);
-//
-//        double fatorR = 255d / (maiorR - menorR);
-//        double fatorG = 255d / (maiorG - menorG);
-//        double fatorB = 255d / (maiorB - menorB);
-//        
-//        // Truncar e normalizar.
-//        for (int x = 0; x < largura; x++) {
-//            for (int y = 0; y < altura; y++) {
-//                int r, g, b;
-//                r = resultadoOperacaoR[y][x];
-//                g = resultadoOperacaoG[y][x];
-//                b = resultadoOperacaoB[y][x];
-//
-//                if (r > 255) {
-//                    r = 255;
-//                } else if (r < 0) {
-//                    r = 0;
-//                }
-//
-//                if (g > 255) {
-//                    g = 255;
-//                } else if (g < 0) {
-//                    g = 0;
-//                }
-//
-//                if (b > 255) {
-//                    b = 255;
-//                } else if (b < 0) {
-//                    b = 0;
-//                }
-//
-//                truncada.setRGB(x, y, r, g, b);
-//
-//                r = (int) (fatorR * (resultadoOperacaoR[y][x] - menorR));
-//                g = (int) (fatorG * (resultadoOperacaoG[y][x] - menorG));
-//                b = (int) (fatorB * (resultadoOperacaoB[y][x] - menorB));
-//
-//                normalizada.setRGB(x, y, r, g, b);
-//            }
-//        }
-//
-//        // Pintar o resultado na imagem final.
-//        adicionarImagem(truncada);
-//        adicionarImagem(normalizada);
     }
 
     private int getR(ImagemGUI imagem, int x, int y) {
@@ -1734,8 +1725,8 @@ public class Desktop extends javax.swing.JFrame {
     }
 
     private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante, int x1, int x2, int y1, int y2) {
-        float[] vetorRelativoRegiao = HistogramaServico.gerarVetorRelativo(imagem, x1, x2, y1, y2);
-        int tamanhoHistograma = vetorRelativoRegiao.length;
+        int[] vetorAbsolutoRegiao = HistogramaServico.gerarVetor(imagem, x1, x2, y1, y2);
+        int tamanhoHistograma = vetorAbsolutoRegiao.length;
         int limiar = tamanhoHistograma / 2;
         float pesoEsquerda = 0;
         float pesoDireita = 0;
@@ -1748,22 +1739,26 @@ public class Desktop extends javax.swing.JFrame {
             pesoDireita = 0;
             for (int i = minimo; i < maximo; i++){
                 if (i <= limiar){
-                    pesoEsquerda += vetorRelativoRegiao[i];
+                    pesoEsquerda += vetorAbsolutoRegiao[i];
                 } else {
-                    pesoDireita += vetorRelativoRegiao[i];
+                    pesoDireita += vetorAbsolutoRegiao[i];
                 }
             }
-            if (pesoEsquerda > pesoDireita){
-                maximo = limiar;
-                limiar = minimo + ((limiar - minimo) / 2);
+            if (pesoEsquerda != 0 || pesoDireita != 0) {
+                if (pesoEsquerda > pesoDireita){
+                    maximo = limiar;
+                    limiar = minimo + ((limiar - minimo) / 2);
+                } else {
+                    minimo = limiar;
+                    limiar = limiar + ((maximo - limiar) / 2);
+                }
             } else {
-                minimo = limiar;
-                limiar = limiar + ((maximo - limiar) / 2);
+                minimo = minimo > 0 ? minimo - 1 : minimo ;
+                maximo = maximo < 255 ? maximo + 1 : maximo;
+                continue;
             }
             verificacoes++;
-        }while (verificacoes < 10);
-        
-        System.out.println("limiar: " + limiar);
+        }while (verificacoes < 10 );
         
         limiarizar(imagem, imagemResultante, x1, x2, y1, y2, limiar);
     }
@@ -1773,7 +1768,7 @@ public class Desktop extends javax.swing.JFrame {
         
         for (int x = x1; x < x2; x++) {
             for (int y = y1; y < y2; y++) {
-                if (imagem.getR(x, y) < limiar){
+                if (imagem.getR(x, y) <= limiar){
                     r = g = b = 0;
                 } else {
                     r = g = b = 255;
@@ -1781,5 +1776,133 @@ public class Desktop extends javax.swing.JFrame {
                 imagemResultante.setRGB(x, y, r, g, b);
             }
         }
+    }
+
+    private ImagemGUI aplicarKMeans(ImagemGUI imagem, int quantidadeClusters) {
+        int largura = imagem.getLargura();
+        int altura = imagem.getAltura();
+        Random random = new Random();
+        List<Color> listaClusters = new ArrayList<>();
+        int eixoX, eixoY;
+        Color cor;
+        for (int i = 0; i < quantidadeClusters; i++){
+            eixoX = random.nextInt(largura - 1);
+            eixoY = random.nextInt(altura - 1);
+            cor = new Color(imagem.getImagem().getRGB(eixoX, eixoY));
+            listaClusters.add(cor);
+        }
+        
+        ImagemGUI imagemResultante = aplicarKMeans(imagem, listaClusters);
+        
+        return imagemResultante;
+    }
+
+    private ImagemGUI aplicarKMeans(ImagemGUI imagem, List<Color> listaClusters) {
+        int largura = imagem.getLargura();
+        int altura = imagem.getAltura();
+        
+        ImagemGUI imagemResultante = new ImagemGUI("K-Means", largura, altura);
+        // Matriz do tamanho da imagem que guarda o indice do cluster do pixel na posição x y
+        int[][] mapaClusters = new int[largura][altura];
+        // matriz com a somatória de r, g e b dos pixels de cada cluster
+        // indice [][3] armazena a quantidade de pixels do cluster para média
+        long[][] somatorioRGBPorCluster;
+        // lista para armazenar novos clusters
+        List<Color> novosClusters = new ArrayList<>();
+        
+        // variáveis de utilidade
+        int rCluster, gCluster, bCluster,
+                rImagem, gImagem, bImagem;
+        int means, meansAux;
+        int iteracoes = 0;
+        int indice;
+        boolean flagMudou;
+        do {
+            flagMudou = false;
+            // inicializa lista de novos clusters e da somatória
+            somatorioRGBPorCluster = new long[listaClusters.size()][4];
+            novosClusters.clear();
+            // para cada pixel
+            for (int y = 0; y < altura; y++) {
+                for (int x = 0; x < largura; x++) {
+                    meansAux = Integer.MAX_VALUE;
+                    rImagem = imagem.getR(x, y);
+                    gImagem = imagem.getG(x, y);
+                    bImagem = imagem.getB(x, y);
+                    // verificação de cada cluster para este pixel
+                    for (indice = 0; indice < listaClusters.size(); indice++) {
+                        rCluster = listaClusters.get(indice).getRed();
+                        gCluster = listaClusters.get(indice).getGreen();
+                        bCluster = listaClusters.get(indice).getBlue();
+                        means = (int) Math.sqrt((Math.pow((rImagem - rCluster), 2)) 
+                                + (Math.pow((gImagem - gCluster), 2)) 
+                                + (Math.pow((bImagem - bCluster), 2)));
+                        // encontra a menor média e atribui o indice do cluster no mapa de clusters
+                        if (means < meansAux){
+                            meansAux = means;
+                            mapaClusters[x][y] = indice;
+                        }
+                    }
+                    // atualiza somatório
+                    somatorioRGBPorCluster[mapaClusters[x][y]][0] += rImagem;
+                    somatorioRGBPorCluster[mapaClusters[x][y]][1] += gImagem;
+                    somatorioRGBPorCluster[mapaClusters[x][y]][2] += bImagem;
+                    // aumenta contador de pixels do cluster encontrado
+                    somatorioRGBPorCluster[mapaClusters[x][y]][3]++;
+                }
+            }
+            
+            long qtdPixelsDesteCluster;
+            int rNovoCluster, gNovoCluster, bNovoCluster;
+            Color novoCluster;
+            for (indice = 0; indice < listaClusters.size(); indice++) {
+                qtdPixelsDesteCluster = somatorioRGBPorCluster[indice][3];
+                if (qtdPixelsDesteCluster == 0){
+                    novosClusters.add(listaClusters.get(indice));
+                    continue;
+                }
+                rNovoCluster = new Long(somatorioRGBPorCluster[indice][0] / qtdPixelsDesteCluster).intValue();
+                gNovoCluster = new Long(somatorioRGBPorCluster[indice][1] / qtdPixelsDesteCluster).intValue();
+                bNovoCluster = new Long(somatorioRGBPorCluster[indice][2] / qtdPixelsDesteCluster).intValue();
+                novoCluster = new Color(rNovoCluster, gNovoCluster, bNovoCluster);
+                novosClusters.add(novoCluster);
+            }
+
+            // variáveis auxiliares
+            int rDiferenca, gDiferenca, bDiferenca;
+            for (indice = 0; indice < listaClusters.size(); indice++) {
+                rCluster = listaClusters.get(indice).getRed();
+                gCluster = listaClusters.get(indice).getGreen();
+                bCluster = listaClusters.get(indice).getBlue();
+                rNovoCluster = novosClusters.get(indice).getRed();
+                gNovoCluster = novosClusters.get(indice).getGreen();
+                bNovoCluster = novosClusters.get(indice).getBlue();
+                rDiferenca = rCluster - rNovoCluster > 0 ? rCluster - rNovoCluster : rNovoCluster - rCluster;
+                gDiferenca = gCluster - gNovoCluster > 0 ? gCluster - gNovoCluster : gNovoCluster - gCluster;
+                bDiferenca = bCluster - bNovoCluster > 0 ? bCluster - bNovoCluster : bNovoCluster - bCluster;
+                if (rDiferenca > 1 && gDiferenca > 1 && bDiferenca > 1){
+                    flagMudou = true;
+                }
+            }
+            listaClusters.clear();
+            listaClusters.addAll(novosClusters);
+            iteracoes++;
+        } while (iteracoes < 50 && flagMudou);
+        
+        // variáveis auxiliares
+        int r, g, b;
+        Color cluster;
+        // pinta imagem resultante
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                cluster = listaClusters.get(mapaClusters[x][y]);
+                r = cluster.getRed();
+                g = cluster.getGreen();
+                b = cluster.getBlue();
+                imagemResultante.setRGB(x, y, r, g, b);
+            }
+        }
+        
+        return imagemResultante;
     }
 }
