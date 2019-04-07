@@ -15,6 +15,7 @@ import br.com.pdi.monocromatizador.MonocromatizadorMedia;
 import br.com.pdi.monocromatizador.MonocromatizadorRmy;
 import br.com.pdi.monocromatizador.MonocromatizadorY;
 import br.com.pdi.operacao.Operacao;
+import br.com.pdi.servico.ClusterServico;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
@@ -1801,7 +1802,6 @@ public class Desktop extends javax.swing.JFrame {
         int largura = imagem.getLargura();
         int altura = imagem.getAltura();
         
-        ImagemGUI imagemResultante = new ImagemGUI("K-Means", largura, altura);
         // Matriz do tamanho da imagem que guarda o indice do cluster do pixel na posição x y
         int[][] mapaClusters = new int[largura][altura];
         // matriz com a somatória de r, g e b dos pixels de cada cluster
@@ -1810,99 +1810,36 @@ public class Desktop extends javax.swing.JFrame {
         // lista para armazenar novos clusters
         List<Color> novosClusters = new ArrayList<>();
         
-        // variáveis de utilidade
-        int rCluster, gCluster, bCluster,
-                rImagem, gImagem, bImagem;
-        int means, meansAux;
         int iteracoes = 0;
-        int indice;
-        boolean flagMudou;
         do {
-            flagMudou = false;
             // inicializa lista de novos clusters e da somatória
             somatorioRGBPorCluster = new long[listaClusters.size()][4];
             novosClusters.clear();
             // para cada pixel
             for (int y = 0; y < altura; y++) {
                 for (int x = 0; x < largura; x++) {
-                    meansAux = Integer.MAX_VALUE;
-                    rImagem = imagem.getR(x, y);
-                    gImagem = imagem.getG(x, y);
-                    bImagem = imagem.getB(x, y);
-                    // verificação de cada cluster para este pixel
-                    for (indice = 0; indice < listaClusters.size(); indice++) {
-                        rCluster = listaClusters.get(indice).getRed();
-                        gCluster = listaClusters.get(indice).getGreen();
-                        bCluster = listaClusters.get(indice).getBlue();
-                        means = (int) Math.sqrt((Math.pow((rImagem - rCluster), 2)) 
-                                + (Math.pow((gImagem - gCluster), 2)) 
-                                + (Math.pow((bImagem - bCluster), 2)));
-                        // encontra a menor média e atribui o indice do cluster no mapa de clusters
-                        if (means < meansAux){
-                            meansAux = means;
-                            mapaClusters[x][y] = indice;
-                        }
-                    }
+                    
+                    mapaClusters[x][y] = ClusterServico.encontraClusterDoPixel(imagem, x, y, listaClusters);
                     // atualiza somatório
-                    somatorioRGBPorCluster[mapaClusters[x][y]][0] += rImagem;
-                    somatorioRGBPorCluster[mapaClusters[x][y]][1] += gImagem;
-                    somatorioRGBPorCluster[mapaClusters[x][y]][2] += bImagem;
+                    somatorioRGBPorCluster[mapaClusters[x][y]][R] += imagem.getR(x, y);
+                    somatorioRGBPorCluster[mapaClusters[x][y]][G] += imagem.getG(x, y);
+                    somatorioRGBPorCluster[mapaClusters[x][y]][B] += imagem.getB(x, y);
                     // aumenta contador de pixels do cluster encontrado
                     somatorioRGBPorCluster[mapaClusters[x][y]][3]++;
                 }
             }
             
-            long qtdPixelsDesteCluster;
-            int rNovoCluster, gNovoCluster, bNovoCluster;
-            Color novoCluster;
-            for (indice = 0; indice < listaClusters.size(); indice++) {
-                qtdPixelsDesteCluster = somatorioRGBPorCluster[indice][3];
-                if (qtdPixelsDesteCluster == 0){
-                    novosClusters.add(listaClusters.get(indice));
-                    continue;
-                }
-                rNovoCluster = new Long(somatorioRGBPorCluster[indice][0] / qtdPixelsDesteCluster).intValue();
-                gNovoCluster = new Long(somatorioRGBPorCluster[indice][1] / qtdPixelsDesteCluster).intValue();
-                bNovoCluster = new Long(somatorioRGBPorCluster[indice][2] / qtdPixelsDesteCluster).intValue();
-                novoCluster = new Color(rNovoCluster, gNovoCluster, bNovoCluster);
-                novosClusters.add(novoCluster);
-            }
+            novosClusters = ClusterServico.encontraNovosClusters(listaClusters, somatorioRGBPorCluster);
 
-            // variáveis auxiliares
-            int rDiferenca, gDiferenca, bDiferenca;
-            for (indice = 0; indice < listaClusters.size(); indice++) {
-                rCluster = listaClusters.get(indice).getRed();
-                gCluster = listaClusters.get(indice).getGreen();
-                bCluster = listaClusters.get(indice).getBlue();
-                rNovoCluster = novosClusters.get(indice).getRed();
-                gNovoCluster = novosClusters.get(indice).getGreen();
-                bNovoCluster = novosClusters.get(indice).getBlue();
-                rDiferenca = rCluster - rNovoCluster > 0 ? rCluster - rNovoCluster : rNovoCluster - rCluster;
-                gDiferenca = gCluster - gNovoCluster > 0 ? gCluster - gNovoCluster : gNovoCluster - gCluster;
-                bDiferenca = bCluster - bNovoCluster > 0 ? bCluster - bNovoCluster : bNovoCluster - bCluster;
-                if (rDiferenca > 1 && gDiferenca > 1 && bDiferenca > 1){
-                    flagMudou = true;
-                }
-            }
+            if (!ClusterServico.verificaMudancaDosClusters(listaClusters, novosClusters))
+                break;
             listaClusters.clear();
             listaClusters.addAll(novosClusters);
             iteracoes++;
-        } while (iteracoes < 50 && flagMudou);
+        } while (iteracoes < 50);
         
-        // variáveis auxiliares
-        int r, g, b;
-        Color cluster;
-        // pinta imagem resultante
-        for (int y = 0; y < altura; y++) {
-            for (int x = 0; x < largura; x++) {
-                cluster = listaClusters.get(mapaClusters[x][y]);
-                r = cluster.getRed();
-                g = cluster.getGreen();
-                b = cluster.getBlue();
-                imagemResultante.setRGB(x, y, r, g, b);
-            }
-        }
-        
+        ImagemGUI imagemResultante = ClusterServico.montaImagemClusterizada(imagem, listaClusters, mapaClusters);
+        imagemResultante.setNome("K-means");
         return imagemResultante;
     }
 }
