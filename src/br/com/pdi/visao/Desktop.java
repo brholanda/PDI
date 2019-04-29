@@ -131,6 +131,9 @@ public class Desktop extends javax.swing.JFrame {
         LimiarizacaoLocalAutomatica = new javax.swing.JMenuItem();
         clusterizacao = new javax.swing.JMenu();
         kMeans = new javax.swing.JMenuItem();
+        kMeansInteligente = new javax.swing.JMenuItem();
+        visao = new javax.swing.JMenu();
+        identificacaoPlacaAutomvel = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Projeto da Disciplina \"Tópicos Especiais em Informática\" - Prof. Leandro Luque - Fatec Mogi das Cruzes");
@@ -423,7 +426,28 @@ public class Desktop extends javax.swing.JFrame {
         });
         clusterizacao.add(kMeans);
 
+        kMeansInteligente.setText("K-means Inteligente");
+        kMeansInteligente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                kMeansInteligenteActionPerformed(evt);
+            }
+        });
+        clusterizacao.add(kMeansInteligente);
+
         menBarMenuPrincipal.add(clusterizacao);
+
+        visao.setText("Visão");
+        visao.setActionCommand("visao");
+
+        identificacaoPlacaAutomvel.setText("Identificação de Placa de Automóvel");
+        identificacaoPlacaAutomvel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                identificacaoPlacaAutomvelActionPerformed(evt);
+            }
+        });
+        visao.add(identificacaoPlacaAutomvel);
+
+        menBarMenuPrincipal.add(visao);
 
         setJMenuBar(menBarMenuPrincipal);
 
@@ -946,7 +970,12 @@ public class Desktop extends javax.swing.JFrame {
         if (null == imagem) {
             return;
         }
+        ImagemGUI imagemFiltrada = removerRuido(imagem);
         
+        adicionarImagem(imagemFiltrada);
+    }//GEN-LAST:event_RemoverRuidoActionPerformed
+
+    private ImagemGUI removerRuido(ImagemGUI imagem){
         int[][] kernel = new int[3][3];
         
         int[][][] cores = aplicarKernel(kernel, imagem, new FiltroMediana());
@@ -954,9 +983,9 @@ public class Desktop extends javax.swing.JFrame {
         ImagemGUI imagemFiltrada = normalizar(cores);
         imagemFiltrada.setNome("Imagem sem ruído (Mediana)");
         
-        adicionarImagem(imagemFiltrada);
-    }//GEN-LAST:event_RemoverRuidoActionPerformed
-
+        return imagemFiltrada;
+    }
+    
     private void MostrarBordasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MostrarBordasActionPerformed
         ImagemGUI imagem = getImagemSelecionada();
 
@@ -1225,6 +1254,76 @@ public class Desktop extends javax.swing.JFrame {
         adicionarImagem(imagemClusterizada);
     }//GEN-LAST:event_kMeansActionPerformed
 
+    private void kMeansInteligenteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kMeansInteligenteActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+        
+        if (null == imagem) {
+            return;
+        }
+        
+        int quantidadeClusters = encontraQuantidadeClusters(imagem);
+        
+        ImagemGUI imagemClusterizada = aplicarKMeans(imagem, quantidadeClusters);
+        adicionarImagem(imagemClusterizada);
+    }//GEN-LAST:event_kMeansInteligenteActionPerformed
+
+    private void identificacaoPlacaAutomvelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_identificacaoPlacaAutomvelActionPerformed
+        ImagemGUI imagem = getImagemSelecionada();
+
+        if (null == imagem) {
+            return;
+        }
+        
+        ImagemGUI imagemResultado = monocromatizar(imagem, new MonocromatizadorY());
+        
+        limiarizar(imagemResultado, imagemResultado);
+        imagemResultado = equalizar(imagemResultado);
+        
+        int[][] kernel = {{-1,-2,-1},{0,0,0},{1,2,1}};
+        
+        int[][][] cores = aplicarKernel(kernel, imagemResultado, new FiltroLaplaciano());
+        imagemResultado = normalizar(cores);
+        
+        adicionarImagem(imagemResultado);
+        int[] vetor = HistogramaServico.gerarVetorIncidenciaBranco(imagemResultado);
+        
+        int maior = HistogramaServico.encontrarMaiorValor(vetor);
+        boolean[] vetorPicos = new boolean[vetor.length];
+        double porcentagem = 1d, porcentagemAux = 0d;
+        for (int i = 0; i < vetor.length; i++){
+            if ((porcentagemAux = (vetor[i] * 100 / maior)) > 30) {
+                if (porcentagemAux * 100 / porcentagem > 70) {
+                    if (porcentagem == 1){
+                        porcentagem = porcentagemAux;
+                    }
+                    vetorPicos[i] = true;
+                } else {
+                    porcentagem = 1d;
+                }
+            }
+        }
+        
+        int inicio = 0, fim = 0;
+        for (int i = 0; i < vetor.length; i++){
+            fim = i;
+            if (vetorPicos[inicio] != vetorPicos[fim]){
+                if (fim - inicio < 10) {
+                    if (vetorPicos[i - 1] == true) {
+                        for (int j = inicio; j < fim; j++) {
+                            vetorPicos[j] = false;
+                        }
+                    }
+                }
+                inicio = i;
+            }
+        }
+        
+        ImagemGUI imagemPlaca = gerarImagemPlaca(imagem, vetorPicos);
+        imagemPlaca.setNome("Imagem Placa");
+        
+        adicionarImagem(imagemPlaca);
+    }//GEN-LAST:event_identificacaoPlacaAutomvelActionPerformed
+
     //*******************************************
     /**
      * Adiciona uma janela de imagem ao painel de desktop.
@@ -1323,11 +1422,13 @@ public class Desktop extends javax.swing.JFrame {
     private javax.swing.JMenu clusterizacao;
     private javax.swing.JDesktopPane desPanDesktop;
     private javax.swing.JMenuItem equalizar;
+    private javax.swing.JMenuItem identificacaoPlacaAutomvel;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem kMeans;
+    private javax.swing.JMenuItem kMeansInteligente;
     private javax.swing.JMenu limiarizacao;
     private javax.swing.JMenuItem limiarizacaoManual;
     private javax.swing.JMenu menArquivo;
@@ -1344,6 +1445,7 @@ public class Desktop extends javax.swing.JFrame {
     private javax.swing.JMenuItem menIteSubtracao;
     private javax.swing.JMenu menOperacoesAritmeticas;
     private javax.swing.JPopupMenu.Separator sepArquivo1;
+    private javax.swing.JMenu visao;
     // End of variables declaration//GEN-END:variables
 
     private int[][][] realizarOperacao(ImagemGUI[] imagens, Operacao operacao, boolean inicializarMatrizComPrimeiraImagem) {
@@ -1725,6 +1827,10 @@ public class Desktop extends javax.swing.JFrame {
         return equalizada;
     }
 
+    private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante) {
+        limiarizar(imagem, imagemResultante, 0, imagem.getLargura(), 0, imagem.getAltura());
+    }
+    
     private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante, int x1, int x2, int y1, int y2) {
         int[] vetorAbsolutoRegiao = HistogramaServico.gerarVetor(imagem, x1, x2, y1, y2);
         int tamanhoHistograma = vetorAbsolutoRegiao.length;
@@ -1740,9 +1846,9 @@ public class Desktop extends javax.swing.JFrame {
             pesoDireita = 0;
             for (int i = minimo; i < maximo; i++){
                 if (i <= limiar){
-                    pesoEsquerda += vetorAbsolutoRegiao[i];
+                    pesoEsquerda += vetorAbsolutoRegiao[i] * i;
                 } else {
-                    pesoDireita += vetorAbsolutoRegiao[i];
+                    pesoDireita += vetorAbsolutoRegiao[i] * i;
                 }
             }
             if (pesoEsquerda != 0 || pesoDireita != 0) {
@@ -1764,6 +1870,10 @@ public class Desktop extends javax.swing.JFrame {
         limiarizar(imagem, imagemResultante, x1, x2, y1, y2, limiar);
     }
 
+    private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante, int limiar) {
+        limiarizar(imagem, imagemResultante, 0, imagem.getLargura(), 0, imagem.getAltura(), limiar);
+    }
+    
     private void limiarizar(ImagemGUI imagem, ImagemGUI imagemResultante, int x1, int x2, int y1, int y2, int limiar) {
         int r, g, b;
         
@@ -1780,6 +1890,8 @@ public class Desktop extends javax.swing.JFrame {
     }
 
     private ImagemGUI aplicarKMeans(ImagemGUI imagem, int quantidadeClusters) {
+        if (quantidadeClusters == 0)
+            return imagem;
         int largura = imagem.getLargura();
         int altura = imagem.getAltura();
         Random random = new Random();
@@ -1840,6 +1952,52 @@ public class Desktop extends javax.swing.JFrame {
         
         ImagemGUI imagemResultante = ClusterServico.montaImagemClusterizada(imagem, listaClusters, mapaClusters);
         imagemResultante.setNome("K-means");
+        return imagemResultante;
+    }
+
+    private int encontraQuantidadeClusters(ImagemGUI imagem) {
+        JOptionPane.showMessageDialog(this, "Funcionalidade em desenvolvimento", "Info", JOptionPane.INFORMATION_MESSAGE);
+        return 0;
+    }
+
+    private int[][][] sobel(int[][][] primeiraMatriz, int[][][] segundaMatriz) {
+        int largura = primeiraMatriz[0].length;
+        int altura = segundaMatriz[0][0].length;
+        int[][][] resultado = new int[3][largura][altura];
+        for (int x = 0; x < largura; x++) {
+            for (int y = 0; y < altura; y++) {
+                resultado[R][x][y] = (int) Math.sqrt(Math.pow(primeiraMatriz[R][x][y], 2) 
+                        + Math.pow(segundaMatriz[R][x][y], 2));
+                resultado[G][x][y] = (int) Math.sqrt(Math.pow(primeiraMatriz[G][x][y], 2) 
+                        + Math.pow(segundaMatriz[G][x][y], 2));
+                resultado[B][x][y] = (int) Math.sqrt(Math.pow(primeiraMatriz[B][x][y], 2) 
+                        + Math.pow(segundaMatriz[B][x][y], 2));
+            }
+        }
+        
+        return resultado;
+    }
+
+    private ImagemGUI gerarImagemPlaca(ImagemGUI imagem, boolean[] vetorPicos) {
+        
+        int largura = imagem.getLargura();
+        int altura = imagem.getAltura();
+        // Cria base para nova imagem a partir da imagem original
+        ImagemGUI imagemResultante = new ImagemGUI("Imagem Placa", largura, altura);
+        int r, g, b;
+        for (int y = 0; y < altura; y++){
+            for (int x = 0; x < largura; x++) {
+                if (vetorPicos[y]){
+                    r = imagem.getR(x, y);
+                    g = imagem.getG(x, y);
+                    b = imagem.getB(x, y);
+                    imagemResultante.setRGB(x, y, r, g, b);
+                } else {
+                    imagemResultante.setRGB(x, y, 0, 0, 0);
+                }
+            }
+        }
+        
         return imagemResultante;
     }
 }

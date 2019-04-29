@@ -332,6 +332,30 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="kMeansActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="kMeansInteligente">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="K-means Inteligente"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="kMeansInteligenteActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="visao">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Vis&#xe3;o"/>
+            <Property name="actionCommand" type="java.lang.String" value="visao"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="identificacaoPlacaAutomvel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Identifica&#xe7;&#xe3;o de Placa de Autom&#xf3;vel"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="identificacaoPlacaAutomvelActionPerformed"/>
+              </Events>
+            </MenuItem>
           </SubComponents>
         </Menu>
       </SubComponents>

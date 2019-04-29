@@ -81,5 +81,20 @@ public class HistogramaServico {
         }
         return vetorRelativo;
     }
+    
+    public static int[] gerarVetorIncidenciaBranco(ImagemGUI imagem){
+        int altura = imagem.getAltura();
+        int largura = imagem.getLargura();
+        int[] vetor = new int[altura];
+        
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                if (imagem.getR(x, y) == 255){
+                    vetor[y]++;
+                }
+            }
+        }
+        return vetor;
+    }
 
 }
