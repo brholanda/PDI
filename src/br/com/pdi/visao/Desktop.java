@@ -1182,7 +1182,9 @@ public class Desktop extends javax.swing.JFrame {
         y2 = imagem.getAltura();
         ImagemGUI imagemLimiarizada = new ImagemGUI(x2, y2);
         
-        limiarizar(imagem, imagemLimiarizada, x1, x2, y1, y2);
+        ImagemGUI imagemMonocromatica = monocromatizar(imagem, new MonocromatizadorY());
+        
+        limiarizar(imagemMonocromatica, imagemLimiarizada, x1, x2, y1, y2);
         imagemLimiarizada.setNome("Limiarização Global");
         adicionarImagem(imagemLimiarizada);
     }//GEN-LAST:event_LimiarizacaoGlobalAutomaticaActionPerformed
@@ -1276,7 +1278,7 @@ public class Desktop extends javax.swing.JFrame {
         
         ImagemGUI imagemResultado = monocromatizar(imagem, new MonocromatizadorY());
         
-        limiarizar(imagemResultado, imagemResultado);
+        limiarizar(imagemResultado, imagemResultado, 120);
         imagemResultado = equalizar(imagemResultado);
         
         int[][] kernel = {{-1,-2,-1},{0,0,0},{1,2,1}};
@@ -1846,9 +1848,9 @@ public class Desktop extends javax.swing.JFrame {
             pesoDireita = 0;
             for (int i = minimo; i < maximo; i++){
                 if (i <= limiar){
-                    pesoEsquerda += vetorAbsolutoRegiao[i] * i;
+                    pesoEsquerda += vetorAbsolutoRegiao[i];
                 } else {
-                    pesoDireita += vetorAbsolutoRegiao[i] * i;
+                    pesoDireita += vetorAbsolutoRegiao[i];
                 }
             }
             if (pesoEsquerda != 0 || pesoDireita != 0) {
