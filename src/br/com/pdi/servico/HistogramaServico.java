@@ -96,5 +96,22 @@ public class HistogramaServico {
         }
         return vetor;
     }
+    
+    public static int[] gerarVetorOscilacaoBranco(ImagemGUI imagem){
+        int altura = imagem.getAltura();
+        int largura = imagem.getLargura();
+        int[] vetor = new int[altura];
+        int corAnterior = imagem.getR(0, 0);
+        
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                if (imagem.getR(x, y) != corAnterior){
+                    vetor[y]++;
+                }
+                corAnterior = imagem.getR(x, y);
+            }
+        }
+        return vetor;
+    }
 
 }

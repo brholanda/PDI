@@ -1288,12 +1288,13 @@ public class Desktop extends javax.swing.JFrame {
         
         adicionarImagem(imagemResultado);
         int[] vetor = HistogramaServico.gerarVetorIncidenciaBranco(imagemResultado);
+        int[] vetorOscilacao = HistogramaServico.gerarVetorOscilacaoBranco(imagemResultado);
         
         int maior = HistogramaServico.encontrarMaiorValor(vetor);
         boolean[] vetorPicos = new boolean[vetor.length];
         double porcentagem = 1d, porcentagemAux = 0d;
         for (int i = 0; i < vetor.length; i++){
-            if ((porcentagemAux = (vetor[i] * 100 / maior)) > 30) {
+            if ((porcentagemAux = (vetor[i] * 100 / maior)) > 60) {
                 if (porcentagemAux * 100 / porcentagem > 70) {
                     if (porcentagem == 1){
                         porcentagem = porcentagemAux;
@@ -1320,10 +1321,71 @@ public class Desktop extends javax.swing.JFrame {
             }
         }
         
+        boolean[] vetorPicos2 = new boolean[vetor.length];
+        int diferenca = 0;
+        int menor = Integer.MAX_VALUE;
+        maior = 0;
+        inicio = 0;
+        int contadorTrue = 0;
+        for (int i = 0; i < vetor.length; i++){
+            if (vetorPicos[i]) {
+                if (vetorOscilacao[i] > maior)
+                    maior = vetorOscilacao[i];
+                if (vetorOscilacao[i] < maior)
+                    menor = vetorOscilacao[i];
+                contadorTrue++;
+            } else {
+                if (diferenca < maior - menor){
+                    diferenca = maior - menor;
+                    fim = i;
+                    inicio = fim - contadorTrue;
+                    contadorTrue = 0;
+                }
+                menor = Integer.MAX_VALUE;
+                maior = 0;
+            }
+        }
+        
+        for (int i = inicio; i <= fim; i++){
+            vetorPicos2[i] = true;
+        }
+        
+        ImagemGUI histograma = new ImagemGUI("Histograma Oscilacao", vetor.length, 200);
+        int larguraHistograma = histograma.getLargura();
+        int alturaHistograma = histograma.getAltura();
+        
+        for (int x = 0; x < larguraHistograma; x++) {
+            for (int y = 0; y < alturaHistograma; y++) {
+                if ((alturaHistograma - y) < vetorOscilacao[x]){
+                    histograma.setGrayScale(x, y, 0);
+                } else {
+                    histograma.setGrayScale(x, y, 200);
+                }
+            }
+        }
+        
+        ImagemGUI histograma2 = new ImagemGUI("Histograma Incidencia", vetor.length, 200);
+        
+        for (int x = 0; x < larguraHistograma; x++) {
+            for (int y = 0; y < alturaHistograma; y++) {
+                if ((alturaHistograma - y) < vetorOscilacao[x]){
+                    histograma2.setGrayScale(x, y, 0);
+                } else {
+                    histograma2.setGrayScale(x, y, 200);
+                }
+            }
+        }
+        
+        adicionarImagem(histograma);
+        adicionarImagem(histograma2);
+        
         ImagemGUI imagemPlaca = gerarImagemPlaca(imagem, vetorPicos);
+        ImagemGUI imagemPlaca2 = gerarImagemPlaca(imagem, vetorPicos2);
         imagemPlaca.setNome("Imagem Placa");
+        imagemPlaca2.setNome("Imagem Placa 2");
         
         adicionarImagem(imagemPlaca);
+        adicionarImagem(imagemPlaca2);
     }//GEN-LAST:event_identificacaoPlacaAutomvelActionPerformed
 
     //*******************************************
